@@ -1,6 +1,7 @@
 package edu.smith.cs.csc212.FPGraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -97,6 +98,8 @@ public class Graph<V,E> {
 	 * @return the edge that was added
 	 */
 	public Edge addEdge(E data, Node head, Node tail) {
+		preventNullNode(head);
+		preventNullNode(tail);
 		if (!this.hasNode(head)) {
 			this.nodes.add(head);
 		}
@@ -227,7 +230,13 @@ public class Graph<V,E> {
 	 */
 	protected void checkNodeValidity(Node node) {
 		if (!hasNode(node)) {
-			throw new IllegalArgumentException("Node: " + node + "doesn't exist.");
+			throw new IllegalArgumentException("Node: " + node + " doesn't exist.");
+		}
+	}
+	
+	protected void preventNullNode(Node node) {
+		if (node == null) {
+			throw new IllegalArgumentException("Null node not supported.");
 		}
 	}
 	
@@ -282,10 +291,10 @@ public class Graph<V,E> {
 	/**
 	 * Dijkstra's shortest-path algorithm to compute distances to nodes
 	 * @param start - where to start from
-	 * @return
+	 * @throws IllegalArgumentException if edges are not of Number type.
 	 */
-	public double[] distances(Node start) {
-		return null;
+	public HashMap<Node, Double> distances(Node start) {
+		throw new IllegalArgumentException("Please use a DistanceGraph for if you want to store weighted edges.");
 	}
 	
 	/** 
@@ -319,10 +328,19 @@ public class Graph<V,E> {
      }
      
      /**
-      * TODO: Implement check()
+      * Check if edges points to null and check if graph contains null node.
       */
      public void check() {
-    	 
+    	 for (int i=0; i<numEdges(); i++) {
+    		 if (edges.get(i).getHead() == null || edges.get(i).getTail() == null) {
+    			 throw new NullPointerException("Edge at position " + i + " doesn't point to anywhere.");
+    		 }
+    	 }
+    	 for (int i=0; i<numNodes(); i++) {
+    		 if (nodes.get(i) == null) {
+    			 throw new NullPointerException("Node at position " + i + " is null.");
+    		 }
+    	 }
      }
 	
 	/**
@@ -367,7 +385,7 @@ public class Graph<V,E> {
 		 * Getter for head node
 		 * @return head node (endpoint #1)
 		 */
-		public Node getHead() {	return head; }
+		public Node getHead() { return head; }
 		
 		/**
 		 * Getter for tail node

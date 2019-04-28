@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.junit.Test;
 
@@ -259,7 +260,6 @@ public class GraphTest {
 		assertEquals(4, data.numEdges());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testOtherNodes() {
 		HashSet<Graph<String, String>.Node> testList = new HashSet<Graph<String, String>.Node>();
@@ -283,7 +283,6 @@ public class GraphTest {
 		assertEquals(5, data.otherNodes(testList).size());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testEndpoints() {
 		HashSet<Graph<String, String>.Edge> testList = new HashSet<Graph<String, String>.Edge>(Arrays.asList(ab, ad));
@@ -327,7 +326,6 @@ public class GraphTest {
 		assertEquals(0, data.numNodes());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testBFT() {
 		makeFullGraph();
@@ -349,7 +347,6 @@ public class GraphTest {
 		assertEquals(new HashSet<Graph<String, String>.Node>(Arrays.asList(e)), data.BFT(e));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testDFT() {
 		makeFullGraph();
@@ -394,6 +391,51 @@ public class GraphTest {
 		System.out.println();
 		clearNodesFromData();
 		data.print();
+	}
+	
+	@Test
+	public void testDistances() {
+		DistanceGraph<String, Integer> distances = new DistanceGraph<>();
+		
+		DistanceGraph<String, Integer>.Node smith = distances.addNode("smith");
+		DistanceGraph<String, Integer>.Node moho = distances.addNode("moho");
+		DistanceGraph<String, Integer>.Node umass = distances.addNode("umass");
+		DistanceGraph<String, Integer>.Node hampshire = distances.addNode("hampshire");
+		DistanceGraph<String, Integer>.Node amherst = distances.addNode("amherst");
+		
+		distances.addEdge(10, smith, moho);
+		distances.addEdge(3, umass, smith);
+		distances.addEdge(8, smith, hampshire);
+		distances.addEdge(1, hampshire, moho);
+		distances.addEdge(7, umass, amherst);
+		distances.addEdge(5, amherst, amherst);
+		
+		Map<Graph<String, Integer>.Node, Double> results = Map.of(smith, 0.0, moho, 9.0, umass, 3.0, amherst, 10.0, hampshire, 8.0);
+		assertEquals(results, distances.distances(smith));
+		
+		results = Map.of(smith, 10.0, moho, 19.0, umass, 7.0, hampshire, 18.0, amherst, 0.0);
+		assertEquals(results, distances.distances(amherst));
+	}
+	
+	@Test
+	public void testDistanceInfinity() {
+		DistanceGraph<String, Integer> distances = new DistanceGraph<>();
+		DistanceGraph<String, Integer>.Node smith = distances.addNode("smith");
+		DistanceGraph<String, Integer>.Node moho = distances.addNode("moho");
+		DistanceGraph<String, Integer>.Node umass = distances.addNode("umass");
+		DistanceGraph<String, Integer>.Node hampshire = distances.addNode("hampshire");
+		DistanceGraph<String, Integer>.Node amherst = distances.addNode("amherst");
+		assertEquals(Map.of(smith, 0.0,
+				moho, Double.POSITIVE_INFINITY,
+				umass, Double.POSITIVE_INFINITY,
+				amherst, Double.POSITIVE_INFINITY,
+				hampshire, Double.POSITIVE_INFINITY), distances.distances(smith));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testDistanceCrash() {
+		makeFullGraph();
+		data.distances(a);
 	}
 	
 	@Test(expected = IndexOutOfBoundsException.class)
@@ -466,7 +508,6 @@ public class GraphTest {
 		assertEquals(ad.hashCode(), data.new Edge(null, d, a).hashCode());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testNodeGetEdgeRef() {
 		makeFullGraph();
@@ -474,12 +515,11 @@ public class GraphTest {
 		assertEquals(new HashSet<Graph<String, String>.Edge>(Arrays.asList(ab, ca, ad)), a.getEdgeRef());
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testNodeGetNeighbors() {
 		makeFullGraph();
-		assertEquals(new LinkedList<Graph<String, String>.Node>(Arrays.asList(e, c)), e.getNeighbors());
-		assertEquals(new LinkedList<Graph<String, String>.Node>(Arrays.asList(d, b, c)), a.getNeighbors());
+		assertEquals(new HashSet<Graph<String, String>.Node>(Arrays.asList(e, c)), new HashSet<Graph<String, String>.Node>(e.getNeighbors()));
+		assertEquals(new HashSet<Graph<String, String>.Node>(Arrays.asList(d, b, c)), new HashSet<Graph<String, String>.Node>(a.getNeighbors()));
 		clearEdgesFromData();
 		assertEquals(new LinkedList<Graph<String, String>.Node>(), a.getNeighbors());
 	}
