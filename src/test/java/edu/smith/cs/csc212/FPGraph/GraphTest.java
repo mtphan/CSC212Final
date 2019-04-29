@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import edu.smith.cs.csc212.FPGraphGUI.GUIGraph;
+
 /**
  * Test for graph
  * @author Minh Phuong
@@ -395,22 +397,22 @@ public class GraphTest {
 	
 	@Test
 	public void testDistances() {
-		DistanceGraph<String, Integer> distances = new DistanceGraph<>();
+		GUIGraph distances = new GUIGraph();
 		
-		DistanceGraph<String, Integer>.Node smith = distances.addNode("smith");
-		DistanceGraph<String, Integer>.Node moho = distances.addNode("moho");
-		DistanceGraph<String, Integer>.Node umass = distances.addNode("umass");
-		DistanceGraph<String, Integer>.Node hampshire = distances.addNode("hampshire");
-		DistanceGraph<String, Integer>.Node amherst = distances.addNode("amherst");
+		GUIGraph.Node smith = distances.addNode("smith");
+		GUIGraph.Node moho = distances.addNode("moho");
+		GUIGraph.Node umass = distances.addNode("umass");
+		GUIGraph.Node hampshire = distances.addNode("hampshire");
+		GUIGraph.Node amherst = distances.addNode("amherst");
 		
-		distances.addEdge(10, smith, moho);
-		distances.addEdge(3, umass, smith);
-		distances.addEdge(8, smith, hampshire);
-		distances.addEdge(1, hampshire, moho);
-		distances.addEdge(7, umass, amherst);
-		distances.addEdge(5, amherst, amherst);
+		distances.addEdge(10.0, smith, moho);
+		distances.addEdge(3.0, umass, smith);
+		distances.addEdge(8.0, smith, hampshire);
+		distances.addEdge(1.0, hampshire, moho);
+		distances.addEdge(7.0, umass, amherst);
+		distances.addEdge(5.0, amherst, amherst);
 		
-		Map<Graph<String, Integer>.Node, Double> results = Map.of(smith, 0.0, moho, 9.0, umass, 3.0, amherst, 10.0, hampshire, 8.0);
+		Map<Graph<String, Double>.Node, Double> results = Map.of(smith, 0.0, moho, 9.0, umass, 3.0, amherst, 10.0, hampshire, 8.0);
 		assertEquals(results, distances.distances(smith));
 		
 		results = Map.of(smith, 10.0, moho, 19.0, umass, 7.0, hampshire, 18.0, amherst, 0.0);
@@ -419,12 +421,12 @@ public class GraphTest {
 	
 	@Test
 	public void testDistanceInfinity() {
-		DistanceGraph<String, Integer> distances = new DistanceGraph<>();
-		DistanceGraph<String, Integer>.Node smith = distances.addNode("smith");
-		DistanceGraph<String, Integer>.Node moho = distances.addNode("moho");
-		DistanceGraph<String, Integer>.Node umass = distances.addNode("umass");
-		DistanceGraph<String, Integer>.Node hampshire = distances.addNode("hampshire");
-		DistanceGraph<String, Integer>.Node amherst = distances.addNode("amherst");
+		Graph<String, Double> distances = new GUIGraph();
+		GUIGraph.Node smith = distances.addNode("smith");
+		GUIGraph.Node moho = distances.addNode("moho");
+		GUIGraph.Node umass = distances.addNode("umass");
+		GUIGraph.Node hampshire = distances.addNode("hampshire");
+		GUIGraph.Node amherst = distances.addNode("amherst");
 		assertEquals(Map.of(smith, 0.0,
 				moho, Double.POSITIVE_INFINITY,
 				umass, Double.POSITIVE_INFINITY,

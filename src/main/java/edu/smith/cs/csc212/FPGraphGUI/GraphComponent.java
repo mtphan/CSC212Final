@@ -57,9 +57,7 @@ public class GraphComponent extends JComponent {
 		}
 		
 		for (GUIGraph.Edge edge : graph.getEdges()) {
-			if (edge.isSelfConnected()) {
-				continue;
-			}
+			
 			Point2D start = nodePosition.get(edge.getHead());
 			Point2D end = nodePosition.get(edge.getTail());
 			Shape edgeLine = new Line2D.Double(start, end);
