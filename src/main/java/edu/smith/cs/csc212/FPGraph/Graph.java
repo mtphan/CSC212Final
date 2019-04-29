@@ -317,7 +317,17 @@ public class Graph<V,E> {
 	 * @throws IllegalArgumentException if edges are not of Number type.
 	 */
 	public HashMap<Node, Double> distances(Node start) {
-		throw new IllegalArgumentException("Please use a DistanceGraph for if you want to store weighted edges.");
+		throw new IllegalArgumentException("To store weighted edges please use WeightedEdgeGraph.");
+	}
+	
+	/**
+	 * Dijkstra's shortest-path algorithm to compute distances between two nodes
+	 * @param start - node to start from
+	 * @param end - destination
+	 * @throws IllegalArgumentException if edges are not of Number type.
+	 */
+	public ArrayList<Graph<String, Double>.Edge> distanceBetween(Node start, Node end) {
+		throw new IllegalArgumentException("To store weighted edges please use WeightedEdgeGraph.");
 	}
 	
 	/** 
@@ -492,6 +502,11 @@ public class Graph<V,E> {
 		public V getData() { return this.data; }
 		
 		/**
+		 * 
+		 */
+		public String getDataString() { return this.data == null ? "null" : this.data.toString(); }
+		
+		/**
 		 * Getter for edges connected to this node
 		 * @return edges connected to this node
 		 */
@@ -564,8 +579,7 @@ public class Graph<V,E> {
 		
 		@Override
 		public String toString() {
-			String dataStr = this.data == null ? "null" : this.data.toString();
-			return "Node@" + Integer.toHexString(hashCode()) + "=" + dataStr;
+			return "Node@" + Integer.toHexString(hashCode()) + "=" + getDataString();
 		}
 	}
 }
