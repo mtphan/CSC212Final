@@ -33,6 +33,10 @@ public class Graph<V,E> {
 		this.nodes = new ArrayList<Node>();
 	}
 	
+	public boolean isEmpty() {
+		return this.nodes.isEmpty();
+	}
+	
 	/**
 	 * Accessor for node.
 	 * @param i - index of node
@@ -80,6 +84,20 @@ public class Graph<V,E> {
 	}
 	
 	/**
+	 * @return the nodes
+	 */
+	public ArrayList<Node> getNodes() {
+		return nodes;
+	}
+
+	/**
+	 * @return the edges
+	 */
+	public ArrayList<Edge> getEdges() {
+		return edges;
+	}
+
+	/**
 	 * Add a node (disconnected).
 	 * @param data - data stored in a node
 	 * @return the node that was added
@@ -126,6 +144,11 @@ public class Graph<V,E> {
 		}
 		for (Edge edge : node.getEdgeRef()) {
 			this.edges.remove(edge);
+			if (edge.getHead() != node) {
+				edge.getHead().removeEdgeRef(edge);
+			} else if (edge.getTail() != node) {
+				edge.getTail().removeEdgeRef(edge);
+			}
 		}
 		return true;
 	}
@@ -413,7 +436,7 @@ public class Graph<V,E> {
 			return false;
 		}
 		
-		protected boolean isSelfConnected() {
+		public boolean isSelfConnected() {
 			return this.head == this.tail;
 		}
 	

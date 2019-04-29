@@ -1,11 +1,13 @@
-package edu.smith.cs.csc212.FPGraph;
+package edu.smith.cs.csc212.FPGraphGUI;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map.Entry;
 
-public class DistanceGraph<V, E extends Number> extends Graph<V, E>{
+import edu.smith.cs.csc212.FPGraph.Graph;
+
+public class GUIGraph extends Graph<String, Double>{
 
 	/**
 	 * @return a HashMap of Node vs corresponding distance of that node from source node.
@@ -58,4 +60,5 @@ public class DistanceGraph<V, E extends Number> extends Graph<V, E>{
 		}
 		return minNode;
 	}
+	
 }
