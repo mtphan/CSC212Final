@@ -1,7 +1,6 @@
 package edu.smith.cs.csc212.FPGraph;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -309,25 +308,6 @@ public class Graph<V,E> {
 			}
 		}
 		return visited;
-	}
-	
-	/**
-	 * Dijkstra's shortest-path algorithm to compute distances to nodes
-	 * @param start - where to start from
-	 * @throws IllegalArgumentException if edges are not of Number type.
-	 */
-	public HashMap<Node, Double> distances(Node start) {
-		throw new IllegalArgumentException("To store weighted edges please use WeightedEdgeGraph.");
-	}
-	
-	/**
-	 * Dijkstra's shortest-path algorithm to compute distances between two nodes
-	 * @param start - node to start from
-	 * @param end - destination
-	 * @throws IllegalArgumentException if edges are not of Number type.
-	 */
-	public ArrayList<Graph<String, Double>.Edge> distanceBetween(Node start, Node end) {
-		throw new IllegalArgumentException("To store weighted edges please use WeightedEdgeGraph.");
 	}
 	
 	/** 

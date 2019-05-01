@@ -8,6 +8,7 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -421,7 +422,7 @@ public class GraphTest {
 	
 	@Test
 	public void testDistanceInfinity() {
-		Graph<String, Double> distances = new GUIGraph();
+		WeightedEdgeGraph<String, Double> distances = new GUIGraph();
 		GUIGraph.Node smith = distances.addNode("smith");
 		GUIGraph.Node moho = distances.addNode("moho");
 		GUIGraph.Node umass = distances.addNode("umass");
@@ -434,10 +435,34 @@ public class GraphTest {
 				hampshire, Double.POSITIVE_INFINITY), distances.distances(smith));
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void testDistanceCrash() {
-		makeFullGraph();
-		data.distances(a);
+	@Test
+	public void testPathBetween() {
+		GUIGraph distances = new GUIGraph();
+		
+		GUIGraph.Node smith = distances.addNode("smith");
+		GUIGraph.Node moho = distances.addNode("moho");
+		GUIGraph.Node umass = distances.addNode("umass");
+		GUIGraph.Node hampshire = distances.addNode("hampshire");
+		GUIGraph.Node amherst = distances.addNode("amherst");
+		
+		distances.addEdge(10.0, smith, moho);
+		GUIGraph.Edge us = distances.addEdge(3.0, umass, smith);
+		distances.addEdge(8.0, smith, hampshire);
+		distances.addEdge(1.0, hampshire, moho);
+		GUIGraph.Edge ua = distances.addEdge(7.0, umass, amherst);
+		distances.addEdge(5.0, amherst, amherst);
+		
+		List<GUIGraph.Edge> results = Arrays.asList(us);
+		assertEquals(results, distances.pathBetween(smith, umass));
+
+		results = Arrays.asList(ua, us);
+		assertEquals(results, distances.pathBetween(amherst, smith));
+		
+		distances.removeEdge(hampshire, smith);
+		distances.removeEdge(hampshire, moho);
+		results = Arrays.asList();
+		assertEquals(results, distances.pathBetween(smith, hampshire));
+		assertEquals(results, distances.pathBetween(amherst, amherst));
 	}
 	
 	@Test(expected = IndexOutOfBoundsException.class)

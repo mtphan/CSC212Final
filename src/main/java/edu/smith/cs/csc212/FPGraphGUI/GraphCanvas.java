@@ -1,5 +1,6 @@
 package edu.smith.cs.csc212.FPGraphGUI;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -10,12 +11,27 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.*;
 import java.util.HashMap;
+import java.util.HashSet;
+
 import javax.swing.JPanel;
 
-public class GraphComponent extends JPanel {
-
+/**
+ * Graph Panel. Control and display internal graph or something.
+ * @author Minh Phuong
+ *
+ */
+public class GraphCanvas extends JPanel {
+	
+	/**
+	 * serialVersionUID. No idea what it is but Eclipse tell me to put it in.
+	 */
 	private static final long serialVersionUID = 1L;
 	
+	/**
+	 * Toggle information display on the canvas. True at start-up.
+	 */
+	protected boolean toggleNodeData, toggleEdgeData;
+
 	/**
 	 * Internal graph
 	 */
@@ -26,15 +42,25 @@ public class GraphComponent extends JPanel {
 	 */
 	protected HashMap<GUIGraph.Node, Point2D> nodePosition;
 	
-
+	/**
+	 * 
+	 */
+	protected HashSet<GUIGraph.Edge> highlightEdges;
+	
 	/**
 	 * Radius of node.
 	 */
 	protected static final int radius = 20;
 	
-	public GraphComponent() {
+	/**
+	 * Create a canvas to draw graph on
+	 */
+	public GraphCanvas() {
 		this.graph = new GUIGraph();
 		nodePosition = new HashMap<>();
+		highlightEdges = new HashSet<>();
+		toggleNodeData = true;
+		toggleEdgeData = true;
 		setBackground(Color.white);
 	}
 	
@@ -46,12 +72,13 @@ public class GraphComponent extends JPanel {
 		g2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		for (GUIGraph.Edge edge : graph.getEdges()) {
-			drawEdge(g2D, edge);
+			drawEdge(g2D, edge, highlightEdges.contains(edge));
 		}
 		
 		for (GUIGraph.Node node : graph.getNodes()) {
-			drawNode(g2D, node);
+			drawNode(g2D, node, nodePosition.get(node).getX(), nodePosition.get(node).getY());
 		}
+		highlightEdges.clear();
 	}
 	
 	/**
@@ -111,14 +138,22 @@ public class GraphComponent extends JPanel {
 	}
 	
 	/**
+	 * Highlight the shortest path between two node found by Dijkstra's algorithm
+	 * @param start - node to start on
+	 * @param end - node to end on
+	 */
+	protected void highlightPathBetween(GUIGraph.Node start, GUIGraph.Node end) {
+		highlightEdges.addAll(graph.pathBetween(start, end));
+	}
+	
+	/**
 	 * A method to draw node
 	 * @param g2D - canvas
 	 * @param node - node to draw
+	 * @param x - x position to draw node
+	 * @param y - y position to draw node
 	 */
-	private void drawNode(Graphics2D g2D, GUIGraph.Node node) {
-		Double x = nodePosition.get(node).getX();
-		Double y = nodePosition.get(node).getY();
-		
+	private void drawNode(Graphics2D g2D, GUIGraph.Node node, double x, double y) {
 		Ellipse2D nodeCircle = new Ellipse2D.Double(x-radius, y-radius, radius*2, radius*2);	
 		g2D.setColor(Color.black);
 		g2D.draw(nodeCircle);
@@ -127,35 +162,46 @@ public class GraphComponent extends JPanel {
 		
 		g2D.setColor(Color.white);
 		String data = node.getDataString().toUpperCase();
-		drawCenteredString(g2D, data.length() >= 4 ? data.substring(0,4) : data, nodeCircle, new Font("TimesRoman", Font.BOLD, 10));
+		if (toggleNodeData)
+			drawCenteredString(g2D, data.length() >= 4 ? data.substring(0,4) : data, nodeCircle.getBounds2D(), new Font("TimesRoman", Font.BOLD, 10));
 	}
 	
 	/**
-	 * 
-	 * @param g - canvas
-	 * @param text - text that will be center
-	 * @param circle - circle that text will be centered around
-	 * @param font - the font we want to use
-	 */
-	private static void drawCenteredString(Graphics2D g, String text, Ellipse2D circle, Font font) {
-	    FontMetrics metrics = g.getFontMetrics(font);
-	    int x = (int) circle.getCenterX() - metrics.stringWidth(text) / 2;
-	    int y = (int) circle.getCenterY() - (metrics.getHeight() / 2) + metrics.getAscent();
-	    g.setFont(font);
-	    g.drawString(text, x, y);
-	}
-	
-	/**
-	 * A method to draw edge
+	 * A method to draw edge + its data.
 	 * @param g2D - canvas
 	 * @param edge - edge to draw
 	 */
-	private void drawEdge(Graphics2D g2D, GUIGraph.Edge edge) {
+	private void drawEdge(Graphics2D g, GUIGraph.Edge edge, boolean needHighlighting) {
+		Graphics2D g2D = (Graphics2D) g.create();
 		Point2D start = nodePosition.get(edge.getHead());
 		Point2D end = nodePosition.get(edge.getTail());
 		Shape edgeLine = new Line2D.Double(start, end);
 		g2D.setColor(Color.black);
+		if (needHighlighting) {
+			g2D.setColor(Color.blue);
+			g2D.setStroke(new BasicStroke(2f));
+		}
 		g2D.draw(edgeLine);
+		if (toggleEdgeData) {
+			g2D.setColor(Color.magenta.darker());
+			drawCenteredString(g2D, String.format("%.4f", edge.getData()), edgeLine.getBounds2D(), new Font("TimesRoman", Font.BOLD, 15));
+		}
+		g2D.dispose();
+	}
+	
+	/**
+	 * Draw string at the very center of node. I have to do this or else it won't be centered. Very annoying >:<
+	 * @param g - canvas
+	 * @param text - text that will be center
+	 * @param rectangle - I initially used an ellipse, but any shapes can be converted to a rectangle, so it's a better choice.
+	 * @param font - the font we want to use
+	 */
+	private static void drawCenteredString(Graphics2D g, String text, Rectangle2D rect, Font font) {
+	    FontMetrics metrics = g.getFontMetrics(font);
+	    int x = (int) rect.getCenterX() - metrics.stringWidth(text) / 2;
+	    int y = (int) rect.getCenterY() - (metrics.getHeight() / 2) + metrics.getAscent();
+	    g.setFont(font);
+	    g.drawString(text, x, y);
 	}
 	
 	/**
@@ -167,7 +213,7 @@ public class GraphComponent extends JPanel {
 	private double getDistanceBetween(GUIGraph.Node start, GUIGraph.Node end) {
 		return nodePosition.get(start).distance(nodePosition.get(end))/100;
 	}
-	
+
 	@Override
     public Dimension getMinimumSize() {
         return new Dimension(500,300);
@@ -175,6 +221,6 @@ public class GraphComponent extends JPanel {
 	
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(700, 500);
+		return new Dimension(1000, 700);
 	}
 }
