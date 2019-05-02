@@ -11,7 +11,6 @@ import java.awt.geom.Point2D;
 import java.util.Map.Entry;
 
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -39,10 +38,15 @@ public class GraphGUI {
 	private GraphCanvas graphCanvas;
 	
 	/**
+	 * Internal graph.
+	 */
+	private GUIGraph graph;
+	
+	/**
 	 * A variable which tells me what mode I'm on right now.
 	 * @see {@link Subject}
 	 */
-	Subject subject = Subject.NODES;
+	Subject subject;
 	
 	public static void main(String[] args) {
 		final GraphGUI GUI = new GraphGUI();
@@ -52,13 +56,13 @@ public class GraphGUI {
 	        }
 	    });
 	}
-	
+
 	/**
 	 * Show the interface. Apparently I have to do this because Swing is not "thread-safe", whatever that means.
 	 */
 	private void createAndShowGUI() {
         JFrame f = new JFrame("Graph Interface");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	
         addComponents(f);
         f.pack();
         f.setVisible(true);
@@ -69,9 +73,13 @@ public class GraphGUI {
 	 * @param f - the frame, duh.
 	 */
 	private void addComponents(JFrame f) {
+		graphCanvas = new GraphCanvas();
+		graph = new GUIGraph();
+		instruction = new JLabel("WELCOME TO GRAPH INTERFACE! CLICK ANY BUTTONS TO SEE INSTRUCTIONS!", JLabel.CENTER);
+		subject = Subject.NODES;
+		
 		f.setLayout(new GridBagLayout());
 		GridBagConstraints layout = new GridBagConstraints();
-		instruction = new JLabel("WELCOME TO GRAPH INTERFACE! CLICK ANY BUTTONS TO SEE INSTRUCTIONS!", JLabel.CENTER);
 		instruction.setForeground(Color.BLUE.darker());
 		layout.fill = GridBagConstraints.HORIZONTAL;
 		layout.weightx = 0.5; layout.weighty = 0;
@@ -79,9 +87,8 @@ public class GraphGUI {
 		layout.insets = new Insets(10,10,0,0);
 		f.add(instruction, layout);
 		layout.gridy = 1;
-		f.add(Box.createRigidArea(new Dimension(40, 0)), layout);
+		f.add(Box.createRigidArea(new Dimension(40, 0)));
 		
-		graphCanvas = new GraphCanvas();
 		MouseClickListener mouseListener = new MouseClickListener();
 		graphCanvas.addMouseListener(mouseListener);
 		graphCanvas.addMouseMotionListener(mouseListener);
@@ -108,8 +115,8 @@ public class GraphGUI {
 	 * @return the Node at the point in question.
 	 */
 	public GUIGraph.Node getNodeAt(Point2D p) {
-		double eps = GraphCanvas.radius;
-		for (Entry<GUIGraph.Node, Point2D> pair : graphCanvas.nodePosition.entrySet()) {
+		double eps = graph.radius;
+		for (Entry<GUIGraph.Node, Point2D> pair : graph.nodePosition.entrySet()) {
 			if (p.distance(pair.getValue()) < eps) {
 				return pair.getKey();
 			}
@@ -123,6 +130,31 @@ public class GraphGUI {
 	 *
 	 */
 	enum Subject {NODES, EDGES, EDIT, DISTANCE};
+	
+	private class GraphCanvas extends JPanel {
+		private static final long serialVersionUID = 1L;
+
+		public GraphCanvas() {
+			super();
+			setBackground(Color.white);
+		}
+		
+		@Override
+		public void paintComponent(Graphics g) {
+			super.paintComponent(g);
+			graph.draw((Graphics2D) g); 
+		}
+		
+		@Override
+	    public Dimension getMinimumSize() {
+	        return new Dimension(500,300);
+	    }
+		
+		@Override
+		public Dimension getPreferredSize() {
+			return new Dimension(800, 500);
+		}
+	}
 	
 	/**
 	 * Button Panel, where all button resides, <em>Display Node Content</em> and <em>Display Edge Content</em>. Should I make it {@code static}?
@@ -140,10 +172,11 @@ public class GraphGUI {
 		 * Create a button panel with 4 buttons
 		 */
 		public ButtonPanel() {
-			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setLayout(new GridBagLayout());
 			addButtons();
 		}
 		
+		GridBagConstraints layout = new GridBagConstraints();
 		/**
 		 * A function to add buttons to current panel.
 		 */
@@ -189,20 +222,28 @@ public class GraphGUI {
 					instruction.setText("Select two nodes to find shortest paths.");
 				}
 			});
-			this.add(Box.createRigidArea(new Dimension(0, 100)));
-			addAButton(nodesButton);
-			addAButton(edgesButton);
-			addAButton(editButton);
-			addAButton(distanceButton);
+			
+			int y = 0;
+			y = addAButton(nodesButton, y);
+			y = addAButton(edgesButton, y);
+			y = addAButton(editButton, y);
+			y = addAButton(distanceButton, y);
 		}
 		/**
 		 * Format adding button I guess.
 		 * @param button - button to add
 		 */
-		private void addAButton(JButton button) {
-			button.setAlignmentX(Component.CENTER_ALIGNMENT);
-			this.add(Box.createRigidArea(new Dimension(0, 50)));
-			this.add(button);
+		private int addAButton(JButton button, int y) {
+			layout.gridx = 0; layout.gridy = y; layout.gridheight = 2;
+			layout.insets = new Insets(10,10,10,10);
+			layout.weighty = 1;
+			layout.fill = GridBagConstraints.REMAINDER;
+			this.add(Box.createRigidArea(new Dimension(0, 100)));
+			
+			layout.fill = GridBagConstraints.VERTICAL;
+			layout.gridy = y+1; layout.weighty = 0;
+			this.add(button, layout);
+			return y+2;
 		}
 	}
 	
@@ -230,20 +271,20 @@ public class GraphGUI {
 		private void addCheckboxes() {
 			JCheckBox toggleNode = new JCheckBox("Display Node Content");
 			JCheckBox toggleEdge = new JCheckBox("Display Edge Content");
-			toggleNode.setSelected(graphCanvas.toggleNodeData);
-			toggleEdge.setSelected(graphCanvas.toggleEdgeData);
+			toggleNode.setSelected(graph.toggleNodeData);
+			toggleEdge.setSelected(graph.toggleEdgeData);
 			
 			toggleNode.addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					graphCanvas.toggleNodeData = e.getStateChange() == 1 ? true : false;
+					graph.toggleNodeData = e.getStateChange() == 1 ? true : false;
 					graphCanvas.repaint();
 				}
 			});
 			toggleEdge.addItemListener(new ItemListener() {
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					graphCanvas.toggleEdgeData = e.getStateChange() == 1 ? true : false;
+					graph.toggleEdgeData = e.getStateChange() == 1 ? true : false;
 					graphCanvas.repaint();
 				}
 			});
@@ -281,7 +322,7 @@ public class GraphGUI {
 					edgeNode = getNodeAt(currentPoint);
 				// If there is a previous node recorded, add edges and wipe that node.
 				} else {
-					graphCanvas.removeEdge(edgeNode, getNodeAt(currentPoint));
+					graph.removeEdge(edgeNode, getNodeAt(currentPoint));
 					edgeNode = null;
 				}
 			}
@@ -292,7 +333,7 @@ public class GraphGUI {
 					edgeNode = getNodeAt(currentPoint);
 				// If there is a previous node recorded, compute path and wipe that node.
 				} else {
-					graphCanvas.highlightPathBetween(edgeNode, nodeRightNow);
+					graph.highlightPathBetween(edgeNode, nodeRightNow);
 					edgeNode = null;
 				}
 			}
@@ -300,12 +341,12 @@ public class GraphGUI {
 			if (subject == Subject.NODES) {
 				// ADD NODE CASE (LEFT-CLICK)
 				if (me.getButton() == MouseEvent.BUTTON1) {
-					graphCanvas.addNode(null, currentPoint);
+					graph.addNode(null, currentPoint);
 				}
 				
 				//REMOVE NODE CASE (RIGHT-CLICK)
 				else if (me.getButton() == MouseEvent.BUTTON3) {
-					graphCanvas.removeNode(getNodeAt(currentPoint));
+					graph.removeNode(getNodeAt(currentPoint));
 				}
 			}
 			
@@ -327,7 +368,7 @@ public class GraphGUI {
 			
 			// ADD NODE BY DRAGGING
 			if (subject == Subject.EDGES && startNode != null && destNode != null) {
-				graphCanvas.addEdge(startNode, destNode);
+				graph.addEdge(startNode, destNode);
 				graphCanvas.repaint();
 			}
 			startNode = null;
@@ -338,7 +379,8 @@ public class GraphGUI {
 			Point2D currentPoint = me.getPoint();
 			// DRAG NODES
 			if (subject == Subject.NODES && startNode != null) {
-				graphCanvas.updateNodePosition(startNode, currentPoint);
+				graph.updateNodePosition(startNode, currentPoint);
+				graphCanvas.repaint();
 			}
 		}
 
