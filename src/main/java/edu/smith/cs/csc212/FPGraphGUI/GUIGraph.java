@@ -14,7 +14,7 @@ import java.util.HashSet;
 import edu.smith.cs.csc212.FPGraph.WeightedEdgeGraph;
 
 /**
- * Graph Panel. Control and display internal graph or something.
+ * GUIGraph extends WeightedEdgeGraph with extra methods to draw on a canvas.
  * @author Minh Phuong
  *
  */
@@ -154,6 +154,7 @@ public class GUIGraph extends WeightedEdgeGraph<String, Double> {
 		Point2D end = nodePosition.get(edge.getTail());
 		Shape edgeLine = new Line2D.Double(start, end);
 		g2D.setColor(Color.black);
+		// Set stroke and color for edge that we want to highlight
 		if (needHighlighting) {
 			g2D.setColor(Color.blue);
 			g2D.setStroke(new BasicStroke(2f));
@@ -162,6 +163,7 @@ public class GUIGraph extends WeightedEdgeGraph<String, Double> {
 		if (toggleEdgeData) {
 			g2D.setColor(Color.red.darker());
 			double slope = (double) (start.getY() - end.getY())/(start.getX() - end.getX());
+			// Math.atan returns angle between -Math.PI/2 and Math.PI/2
 			drawCenteredString(g2D, Math.atan(slope), String.format("%.4f", edge.getData()), edgeLine.getBounds2D(), new Font("TimesRoman", Font.BOLD, 15));
 		}
 		g2D.dispose();
@@ -170,6 +172,7 @@ public class GUIGraph extends WeightedEdgeGraph<String, Double> {
 	/**
 	 * Draw string at the very center of node. I have to do this or else it won't be centered. Very annoying >:<
 	 * @param g - canvas
+	 * @param theta - angle of text rotation. Pass in null for no rotation (nodes).
 	 * @param text - text that will be center
 	 * @param rectangle - I initially used an ellipse, but any shapes can be converted to a rectangle, so it's a better choice.
 	 * @param font - the font we want to use
@@ -183,6 +186,7 @@ public class GUIGraph extends WeightedEdgeGraph<String, Double> {
 	    // Theta = null for nodes. Theta =/= null for edges.
 	    if (theta != null) {
 	    	g.rotate(theta);
+	    	// Translate up a little bit so that the edge line doesn't strike right through it.
 	    	g.translate(0, -10);
 	    }
 	    g.drawString(text, x, y);

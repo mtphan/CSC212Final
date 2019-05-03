@@ -73,6 +73,7 @@ public class GraphGUI {
 	 * @param f - the frame, duh.
 	 */
 	private void addComponents(JFrame f) {
+		// Add instruction at top of the page
 		graphCanvas = new GraphCanvas();
 		graph = new GUIGraph();
 		instruction = new JLabel("WELCOME TO GRAPH INTERFACE! CLICK ANY BUTTONS TO SEE INSTRUCTIONS!", JLabel.CENTER);
@@ -89,20 +90,23 @@ public class GraphGUI {
 		layout.gridy = 1;
 		f.add(Box.createRigidArea(new Dimension(40, 0)));
 		
+		// Create and add canvas (canvas is a JPanel just because I can).
 		MouseClickListener mouseListener = new MouseClickListener();
 		graphCanvas.addMouseListener(mouseListener);
 		graphCanvas.addMouseMotionListener(mouseListener);
-
+		
 		layout.insets = new Insets(10,10,10,10);
 		layout.weightx = 0.8; layout.weighty = 1;
 		layout.gridx = 0; layout.gridy = 1;
 		layout.fill = GridBagConstraints.BOTH;
 		f.add(graphCanvas, layout);
 		
+		// Add button panel on the right
 		layout.weightx = 0; layout.weighty = 1;
 		layout.gridx = 1; layout.gridy = 1;
 		f.add(new ButtonPanel(), layout);
 		
+		// Add checkbox panel at bottom
 		layout.insets = new Insets(0,10,0,0);
 		layout.weightx = 1; layout.weighty = 0;
 		layout.gridx = 0; layout.gridy = 2;
@@ -131,9 +135,19 @@ public class GraphGUI {
 	 */
 	enum Subject {NODES, EDGES, EDIT, DISTANCE};
 	
+	/**
+	 * Canvas to draw nodes and edges on. It's a JPanel just because.
+	 * @author Minh Phuong
+	 */
 	private class GraphCanvas extends JPanel {
+		/**
+		 * No idea what this is
+		 */
 		private static final long serialVersionUID = 1L;
-
+		
+		/**
+		 * Create a blank canvas.
+		 */
 		public GraphCanvas() {
 			super();
 			setBackground(Color.white);
@@ -176,6 +190,9 @@ public class GraphGUI {
 			addButtons();
 		}
 		
+		/**
+		 * Layout of this panel
+		 */
 		GridBagConstraints layout = new GridBagConstraints();
 		/**
 		 * A function to add buttons to current panel.
@@ -232,6 +249,7 @@ public class GraphGUI {
 		/**
 		 * Format adding button I guess.
 		 * @param button - button to add
+		 * @return next grid y-position to add a new button (should there be any) in. I think I didn't do a very good job here but it works so...
 		 */
 		private int addAButton(JButton button, int y) {
 			layout.gridx = 0; layout.gridy = y; layout.gridheight = 2;
