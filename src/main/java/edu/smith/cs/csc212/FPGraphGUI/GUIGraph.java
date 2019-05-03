@@ -137,7 +137,7 @@ public class GUIGraph extends WeightedEdgeGraph<String, Double> {
 		g2D.fill(nodeCircle);
 		
 		g2D.setColor(Color.white);
-		String data = node.getDataString().toUpperCase();
+		String data = node.getDataString();
 		if (toggleNodeData)
 			drawCenteredString(g2D, null, data.length() >= 4 ? data.substring(0,4) : data, nodeCircle.getBounds2D(), new Font("TimesRoman", Font.BOLD, 10));
 		g2D.dispose();
